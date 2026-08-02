@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-bg: #06070a;
+  --color-surface: #0d0f16;
+  --color-surface-2: #12141d;
+  --color-border: #1f2230;
+  --color-text: #cbd0dc;
+  --color-text-dim: #6b7180;
+  --color-heading: #f5f6fa;
+  --color-accent: #7c5cff;
+  --color-accent-2: #22d3ee;
+  --color-accent-3: #ff5ca8;
+  --color-glass: rgba(13, 15, 22, 0.6);
+  --color-overlay: rgba(6, 7, 10, 0.15);
+  --color-overlay-strong: rgba(6, 7, 10, 0.85);
+}
+
+:root[data-theme='light'] {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-2: #f3f3f6;
+  --color-border: #e4e4ea;
+  --color-text: #4b4f5a;
+  --color-text-dim: #838791;
+  --color-heading: #0d0f16;
+  --color-accent: #6d4bff;
+  --color-accent-2: #0891b2;
+  --color-accent-3: #db2777;
+  --color-glass: rgba(255, 255, 255, 0.7);
+  --color-overlay: rgba(255, 255, 255, 0.25);
+  --color-overlay-strong: rgba(255, 255, 255, 0.9);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--color-accent-2), var(--color-accent), var(--color-accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-move {
+  background: linear-gradient(
+    100deg,
+    var(--color-accent-2),
+    var(--color-accent),
+    var(--color-accent-3),
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-gradient-move {
+    animation: none;
+  }
+}
+
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 10%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 40;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:root[data-theme='light'] .noise {
+  opacity: 0.02;
+  mix-blend-mode: multiply;
+}
+
+.card-image-overlay {
+  background: linear-gradient(
+    to top,
+    var(--color-surface) 0%,
+    color-mix(in srgb, var(--color-surface) 75%, transparent) 45%,
+    color-mix(in srgb, var(--color-surface) 20%, transparent) 100%
+  );
+}

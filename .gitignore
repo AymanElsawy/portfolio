@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Lockfile omitted: optional native binaries (rolldown/lightningcss) don't
+# round-trip across platforms reliably, which breaks `npm ci` on CI hosts.
+package-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

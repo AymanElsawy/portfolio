@@ -1,66 +1,63 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { experience } from '../data/resume'
+import Section from './Section'
+import { FadeIn, MaskReveal } from './reveal'
 
 export default function Experience() {
+  const track = useRef<HTMLDivElement>(null)
+  const reduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: track,
+    offset: ['start 75%', 'end 65%'],
+  })
+  const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
+
   return (
-    <section id="experience" className="relative py-28 px-6">
-      <div className="max-w-5xl mx-auto">
+    <Section id="experience" label="Experience" title="Where I've worked">
+      <div ref={track} className="relative pl-6 sm:pl-8">
+        {/* The rule fills as you read down it — the scroll indicator is the timeline. */}
+        <div className="absolute left-0 top-2 bottom-2 w-px bg-[var(--color-rule)]" />
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="font-mono text-sm text-[var(--color-accent-2)]">02 — Experience</span>
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-heading)] mt-3 mb-14">
-            Where I've worked.
-          </h2>
-        </motion.div>
+          style={reduced ? undefined : { scaleY }}
+          className="absolute left-0 top-2 bottom-2 w-px origin-top bg-[var(--color-signal)]"
+        />
 
-        <div className="relative border-l border-[var(--color-border)] ml-2">
-          {experience.map((job, i) => (
-            <motion.div
-              key={job.company + job.period}
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative pl-10 pb-14 last:pb-0"
-            >
-              <span className="absolute -left-[7px] top-1.5 h-3.5 w-3.5 rounded-full bg-[var(--color-accent)] ring-4 ring-[var(--color-bg)]" />
+        {experience.map((job) => (
+          <article key={job.company + job.period} className="relative pb-14 last:pb-0">
+            <span className="absolute -left-6 top-2.5 h-1.5 w-1.5 -translate-x-1/2 bg-[var(--color-ink-strong)] sm:-left-8" />
 
-              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                <h3 className="font-display text-xl font-semibold text-[var(--color-heading)]">
-                  {job.title} <span className="text-[var(--color-accent)]">· {job.company}</span>
-                </h3>
-                <span className="font-mono text-xs text-[var(--color-text-dim)] whitespace-nowrap">
-                  {job.period}
-                </span>
-              </div>
+            <FadeIn>
+              <p className="figures text-[13px] text-[var(--color-ink-dim)]">{job.period}</p>
+            </FadeIn>
 
-              <ul className="mt-4 space-y-2">
-                {job.points.map((p) => (
-                  <li key={p} className="text-sm text-[var(--color-text)] leading-relaxed pl-4 relative">
-                    <span className="absolute left-0 top-2 h-1 w-1 rounded-full bg-[var(--color-text-dim)]" />
-                    {p}
-                  </li>
-                ))}
+            <h3 className="display mt-2 text-[clamp(1.25rem,2.6vw,1.75rem)] text-[var(--color-ink-strong)]">
+              <MaskReveal delay={0.06}>{job.company}</MaskReveal>
+            </h3>
+            <FadeIn delay={0.16}>
+              <p className="mt-1 text-[15px] text-[var(--color-ink)]">{job.title}</p>
+            </FadeIn>
+
+            <FadeIn delay={0.24}>
+              <ul className="mt-5 max-w-[62ch] space-y-3">
+              {job.points.map((point) => (
+                <li
+                  key={point}
+                  className="relative pl-5 text-[15px] leading-relaxed text-[var(--color-ink)]"
+                >
+                  <span className="absolute left-0 top-[0.72em] h-px w-2.5 bg-[var(--color-rule)]" />
+                  {point}
+                </li>
+              ))}
               </ul>
+            </FadeIn>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {job.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 font-mono text-xs text-[var(--color-text-dim)]"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
+            <FadeIn delay={0.3}>
+              <p className="mt-5 text-[13.5px] text-[var(--color-signal)]">{job.tags.join(', ')}</p>
+            </FadeIn>
+          </article>
+        ))}
       </div>
-    </section>
+    </Section>
   )
 }

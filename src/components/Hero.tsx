@@ -1,156 +1,120 @@
-import { motion } from 'framer-motion'
-import { ArrowDown, Mail } from 'lucide-react'
-import { FaGithub, FaLinkedin } from 'react-icons/fa6'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { profile } from '../data/resume'
+import PlotLine from './PlotLine'
 
-const roles = ['React.js', 'Angular', 'Next.js', 'Flutter']
+const HEADLINE = ['I build frontends', 'that go live', 'and stay live.']
 
-const line1 = `Hi, I'm ${profile.name.split(' ')[0]},`
-const line2 = 'Frontend Developer'
+const facts = [
+  { label: 'Now', value: 'Engineer III, Banque Misr' },
+  { label: 'Live products', value: '9' },
+  { label: 'On the App Store', value: '2 iOS apps' },
+  { label: 'Based in', value: profile.location },
+]
 
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.045, delayChildren: 0.15 },
-  },
-}
-
-const letter = {
-  hidden: { opacity: 0, y: 24, rotateX: -60 },
-  show: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
-  },
-}
-
-function AnimatedLine({ text, delay = 0, letterClassName }: { text: string; delay?: number; letterClassName?: string }) {
-  return (
-    <motion.span
-      variants={container}
-      initial="hidden"
-      animate="show"
-      transition={{ delayChildren: delay }}
-      className="inline-block"
-      style={{ perspective: 800 }}
-    >
-      {text.split('').map((char, i) => (
-        <motion.span
-          key={i}
-          variants={letter}
-          className={`inline-block will-change-transform ${letterClassName ?? ''}`}
-          style={letterClassName ? { animationDelay: `${i * 0.09}s` } : undefined}
-        >
-          {char === ' ' ? ' ' : char}
-        </motion.span>
-      ))}
-    </motion.span>
-  )
+const line = {
+  hidden: { y: '110%' },
+  show: (i: number) => ({
+    y: '0%',
+    transition: { duration: 0.85, delay: 0.15 + i * 0.09, ease: [0.22, 1, 0.36, 1] as const },
+  }),
 }
 
 export default function Hero() {
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const plotY = useTransform(scrollYProgress, [0, 1], ['0%', '38%'])
+  const plotOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+
   return (
     <section
+      ref={ref}
       id="top"
-      className="relative min-h-screen flex flex-col items-center justify-center px-6 grid-bg overflow-hidden"
+      className="relative flex min-h-svh flex-col justify-center overflow-hidden"
     >
-      {/* glow blobs */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[var(--color-accent)] opacity-20 blur-[120px]" />
-      <div className="pointer-events-none absolute top-1/2 -right-40 h-96 w-96 rounded-full bg-[var(--color-accent-2)] opacity-20 blur-[120px]" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-bg)]" />
-
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/60 px-4 py-1.5 text-xs text-[var(--color-text-dim)] mb-8"
+        aria-hidden
+        style={reduced ? undefined : { y: plotY, opacity: plotOpacity }}
+        className="pointer-events-none absolute inset-0"
       >
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-        </span>
-        Available for new opportunities
+        <PlotLine />
       </motion.div>
 
-      <h1 className="relative z-10 font-display text-center text-5xl sm:text-6xl md:text-7xl font-semibold text-[var(--color-heading)] leading-[1.05] max-w-4xl">
-        <AnimatedLine text={line1} delay={0.1} />
-        <br />
-        <AnimatedLine text={line2} delay={0.1 + line1.length * 0.045} letterClassName="text-gradient-move" />
-      </h1>
+      <div className="relative mx-auto w-full max-w-[1180px] px-6 pt-32 pb-16 sm:px-10">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="plate mb-10 text-[13px] text-[var(--color-ink-dim)]"
+        >
+          {profile.name} — frontend developer
+        </motion.p>
 
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.25 }}
-        className="relative z-10 mt-6 max-w-xl text-center text-base sm:text-lg text-[var(--color-text-dim)]"
-      >
-        4+ years building fast, accessible web apps — currently shipping digital banking
-        experiences at Banque Misr.
-      </motion.p>
+        <h1 className="display text-[clamp(2.7rem,8.4vw,6.5rem)] text-[var(--color-ink-strong)]">
+          {HEADLINE.map((text, i) => (
+            <span key={text} className="mask-line">
+              <motion.span
+                custom={i}
+                variants={line}
+                initial="hidden"
+                animate="show"
+                className="block will-change-transform"
+              >
+                {text}
+              </motion.span>
+            </span>
+          ))}
+        </h1>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.35 }}
-        className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-2"
-      >
-        {roles.map((r) => (
-          <span
-            key={r}
-            className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 font-mono text-xs text-[var(--color-text)]"
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.55 }}
+          className="prose-serif mt-9 text-[var(--color-ink)]"
+        >
+          Four years of production work — digital banking for millions of customers at Banque
+          Misr, plus corporate sites, admin dashboards, and two iOS apps shipped to the App
+          Store.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.68 }}
+          className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4"
+        >
+          <a
+            href="#work"
+            className="bg-[var(--color-ink-strong)] px-7 py-3.5 text-sm font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-signal)]"
           >
-            {r}
-          </span>
-        ))}
-      </motion.div>
+            See the work
+          </a>
+          <a
+            href={`mailto:${profile.email}`}
+            className="rule-link text-sm font-medium text-[var(--color-ink-strong)]"
+          >
+            Email me
+          </a>
+        </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.45 }}
-        className="relative z-10 mt-10 flex items-center gap-4"
-      >
-        <a
-          href="#projects"
-          className="rounded-full bg-[var(--color-heading)] px-6 py-3 text-sm font-medium text-[var(--color-bg)] transition-transform hover:scale-105"
-        >
-          View my work
-        </a>
-        <a
-          href={`mailto:${profile.email}`}
-          className="rounded-full border border-[var(--color-border)] px-6 py-3 text-sm font-medium text-[var(--color-heading)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-        >
-          Get in touch
-        </a>
-      </motion.div>
-
-      <motion.div
+      <motion.dl
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, delay: 0.6 }}
-        className="relative z-10 mt-10 flex items-center gap-5 text-[var(--color-text-dim)]"
+        transition={{ duration: 0.8, delay: 0.85 }}
+        className="relative mx-auto grid w-full max-w-[1180px] grid-cols-2 border-t border-[var(--color-rule)] px-6 sm:px-10 md:grid-cols-4"
       >
-        <a href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="hover:text-[var(--color-heading)] transition-colors">
-          <FaGithub size={20} />
-        </a>
-        <a href={profile.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-[var(--color-heading)] transition-colors">
-          <FaLinkedin size={20} />
-        </a>
-        <a href={`mailto:${profile.email}`} aria-label="Email" className="hover:text-[var(--color-heading)] transition-colors">
-          <Mail size={20} />
-        </a>
-      </motion.div>
-
-      <motion.a
-        href="#about"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-8 z-10 text-[var(--color-text-dim)]"
-        aria-label="Scroll down"
-      >
-        <ArrowDown size={20} />
-      </motion.a>
+        {facts.map((f) => (
+          <div
+            key={f.label}
+            className="border-b border-[var(--color-rule-soft)] py-5 pr-6 md:border-b-0"
+          >
+            <dt className="plate text-[12px] text-[var(--color-ink-dim)]">{f.label}</dt>
+            <dd className="figures mt-1.5 text-[15px] text-[var(--color-ink-strong)]">{f.value}</dd>
+          </div>
+        ))}
+      </motion.dl>
     </section>
   )
 }

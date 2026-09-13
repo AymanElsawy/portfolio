@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 
@@ -8,16 +8,16 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      aria-label="Toggle color theme"
-      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-heading)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+      className="relative flex h-8 w-8 items-center justify-center overflow-hidden text-[var(--color-ink-dim)] transition-colors hover:text-[var(--color-ink-strong)]"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={theme}
-          initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
-          animate={{ opacity: 1, rotate: 0, scale: 1 }}
-          exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
-          transition={{ duration: 0.25 }}
+          initial={{ y: 14, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -14, opacity: 0 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="flex"
         >
           {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}

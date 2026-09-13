@@ -1,48 +1,49 @@
-import { motion } from 'framer-motion'
-import { Mail, Phone } from 'lucide-react'
-import { FaGithub, FaLinkedin } from 'react-icons/fa6'
 import { profile } from '../data/resume'
+import Section from './Section'
+import SpecList from './SpecList'
+import { FadeIn, MaskReveal } from './reveal'
+
+const channels = [
+  { label: 'Phone', value: profile.phone, href: `tel:${profile.phone}` },
+  { label: 'GitHub', value: 'View profile', href: profile.github },
+  { label: 'LinkedIn', value: 'View profile', href: profile.linkedin },
+]
 
 export default function Contact() {
   return (
-    <section id="contact" className="relative py-28 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+    <Section id="contact" label="Contact" title="Let's talk about your next build">
+      <FadeIn delay={0.12}>
+        <p className="prose-serif text-[var(--color-ink)]">
+          I'm open to frontend roles and freelance work — web apps, dashboards, or an iOS build.
+          Send a note and I'll reply within a day.
+        </p>
+      </FadeIn>
+
+      <h3 className="display mt-10 text-[clamp(1.5rem,4.6vw,3rem)]">
+        <a
+          href={`mailto:${profile.email}`}
+          className="rule-link inline-block text-[var(--color-ink-strong)] hover:text-[var(--color-signal)]"
         >
-          <span className="font-mono text-sm text-[var(--color-accent-2)]">05 — Contact</span>
-          <h2 className="font-display text-3xl sm:text-5xl font-semibold text-[var(--color-heading)] mt-3 mb-6">
-            Let's build something <span className="text-gradient">great</span> together.
-          </h2>
-          <p className="text-[var(--color-text-dim)] max-w-xl mx-auto mb-10">
-            Open to new opportunities and freelance projects. Reach out and I'll get back to you
-            as soon as I can.
-          </p>
+          <MaskReveal delay={0.2}>{profile.email}</MaskReveal>
+        </a>
+      </h3>
 
-          <a
-            href={`mailto:${profile.email}`}
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-heading)] px-8 py-4 text-sm font-medium text-[var(--color-bg)] transition-transform hover:scale-105"
-          >
-            <Mail size={18} />
-            {profile.email}
-          </a>
-
-          <div className="mt-10 flex items-center justify-center gap-8 text-sm text-[var(--color-text-dim)]">
-            <a href={`tel:${profile.phone}`} className="flex items-center gap-2 hover:text-[var(--color-heading)] transition-colors">
-              <Phone size={16} /> {profile.phone}
+      <SpecList
+        className="mt-14"
+        termClass="sm:grid-cols-[11rem_minmax(0,1fr)]"
+        rows={channels.map((c) => ({
+          term: c.label,
+          detail: (
+            <a
+              href={c.href}
+              {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})}
+              className="figures rule-link text-[var(--color-ink-strong)]"
+            >
+              {c.value}
             </a>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[var(--color-heading)] transition-colors">
-              <FaGithub size={16} /> GitHub
-            </a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[var(--color-heading)] transition-colors">
-              <FaLinkedin size={16} /> LinkedIn
-            </a>
-          </div>
-        </motion.div>
-      </div>
-    </section>
+          ),
+        }))}
+      />
+    </Section>
   )
 }

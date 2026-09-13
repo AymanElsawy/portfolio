@@ -1,91 +1,115 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import { useActiveSection } from '../hooks/useActiveSection'
 
 const links = [
-  { href: '#about', label: 'About' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#skills', label: 'Skills' },
-  { href: '#contact', label: 'Contact' },
+  { href: '#about', id: 'about', label: 'About' },
+  { href: '#experience', id: 'experience', label: 'Experience' },
+  { href: '#work', id: 'work', label: 'Work' },
+  { href: '#skills', id: 'skills', label: 'Skills' },
+  { href: '#contact', id: 'contact', label: 'Contact' },
 ]
+
+const ids = links.map((l) => l.id)
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const active = useActiveSection(ids)
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 160, damping: 30, restDelta: 0.001 })
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled ? 'glass border-b border-[var(--color-border)]' : 'bg-transparent'
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+        scrolled
+          ? 'border-b border-[var(--color-rule)] bg-[var(--color-veil)] backdrop-blur-md'
+          : 'border-b border-transparent'
       }`}
     >
-      <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-        <a href="#top" className="font-display text-lg font-semibold text-[var(--color-heading)]">
-          Ayman<span className="text-gradient">.</span>
+      <nav className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-4 sm:px-10">
+        <a href="#top" className="plate text-[13px] text-[var(--color-ink-strong)]">
+          Ayman Khalifa
         </a>
 
-        <ul className="hidden md:flex items-center gap-8 text-sm">
+        <ul className="hidden items-center gap-1 md:flex">
           {links.map((l) => (
-            <li key={l.href}>
+            <li key={l.id} className="relative">
               <a
                 href={l.href}
-                className="text-[var(--color-text-dim)] hover:text-[var(--color-heading)] transition-colors"
+                aria-current={active === l.id ? 'true' : undefined}
+                className={`relative block px-3 py-1.5 text-[13.5px] transition-colors ${
+                  active === l.id
+                    ? 'text-[var(--color-ink-strong)]'
+                    : 'text-[var(--color-ink-dim)] hover:text-[var(--color-ink-strong)]'
+                }`}
               >
                 {l.label}
+                {active === l.id && (
+                  <motion.span
+                    layoutId="nav-marker"
+                    className="absolute inset-x-2 -bottom-0.5 h-px bg-[var(--color-signal)]"
+                    transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                  />
+                )}
               </a>
             </li>
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center gap-3">
-          <ThemeToggle />
-          <a
-            href="#contact"
-            className="inline-flex items-center rounded-full border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-heading)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
-          >
-            Let's talk
-          </a>
-        </div>
-
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
             onClick={() => setOpen((o) => !o)}
-            className="text-[var(--color-heading)]"
-            aria-label="Toggle menu"
+            className="p-1.5 text-[var(--color-ink-strong)] md:hidden"
+            aria-expanded={open}
+            aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </nav>
 
-      {open && (
-        <motion.ul
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          className="md:hidden glass border-t border-[var(--color-border)] flex flex-col px-6 py-4 gap-4 text-sm"
-        >
-          {links.map((l) => (
-            <li key={l.href}>
-              <a href={l.href} onClick={() => setOpen(false)} className="text-[var(--color-text)]">
-                {l.label}
-              </a>
-            </li>
-          ))}
-        </motion.ul>
-      )}
-    </motion.header>
+      <motion.div
+        aria-hidden
+        style={{ scaleX: progress, opacity: scrolled ? 1 : 0 }}
+        className="absolute inset-x-0 bottom-0 h-px origin-left bg-[var(--color-signal)] transition-opacity duration-300"
+      />
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-[var(--color-rule)] bg-[var(--color-bg)] md:hidden"
+          >
+            <ul className="px-6 py-2">
+              {links.map((l) => (
+                <li key={l.id} className="border-b border-[var(--color-rule-soft)] last:border-b-0">
+                  <a
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="block py-3.5 text-[15px] text-[var(--color-ink-strong)]"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   )
 }

@@ -81,7 +81,7 @@ export const projects = [
     name: 'Mentholatum Arabia',
     description: 'Product website and admin panel for content management.',
     stack: ['Angular', 'Admin Panel'],
-    link: 'https://mentholatumarabia.com',
+    link: 'https://www.mentholatumarabia.com',
     image: '/projects/mentholatum.jpg',
   },
   {
